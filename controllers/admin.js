@@ -27,33 +27,35 @@ exports.postBook = (req, res, next) => {
 
 // affiche la liste de livres partie admin
 exports.getBooks = (req, res) => {
-    Book.fetchAll(books => { // "books" est le callback (parametre de la fonction getBookFromJson du model)
-        res.render('admin/books', {
-            pageTitle: 'Admin liste des lives',
-            path: '/',
-            books: books
-        });
-    });
+    Book.fetchAll()
+        .then(([books]) => {
+            res.render('admin/books', {
+                pageTitle: 'Admin liste des lives',
+                path: '/',
+                books: books
+            });    
+        })
+        .catch(err => console.log(err))
 }
 
 
+// mettre a jour un livre
 exports.getEditBook = (req, res, next) => {
     const editMode = req.query.edit;
     if(!editMode){
         return res.redirect('/');
     }
     const bookId = req.params.bookId;
-    Book.getBooksById(bookId, book => {
-        if(!book) {
-            console.log(book);
-        }
-        res.render('admin/edit-book', {
-            pageTitle: 'Mettre a jour un livre',
-            path: '/admin/edit-book',
-            editing: editMode,
-            book: book
+    Book.getBooksById(bookId)
+        .then(([book]) => {
+            res.render('admin/edit-book', {
+                pageTitle: 'Mettre a jour un livre',
+                path: '/admin/edit-book',
+                editing: editMode,
+                book: book[0]
+            })    
         })
-    })
+        .catch(err => console.log(err));
 }
 
 
@@ -64,13 +66,19 @@ exports.postEditBook = (req, res, next) => {
     const updatedImageUrl = req.body.imageUrl;
     const updatedDescription = req.body.description;
     const updatedBook = new Book(bookId, updatedTitle, updatedImageUrl, updatedDescription, updatedPrice);
-    updatedBook.save();
-    res.redirect('/admin/books');
+    updatedBook.update(bookId)
+        .then(() => {
+            res.redirect('/admin/books');
+        })
+        .catch(err => console.log(err))
 }
 
 
 exports.deletBook = (req, res, next) => {
     const bookId = req.body.bookId;
-    Book.deleteBookById(bookId);
-    res.redirect('/admin/books');
+    Book.deleteBookById(bookId)
+        .then(([book]) => {
+            res.redirect('/admin/books');
+        })
+        .catch(err => console.log(err))
 }

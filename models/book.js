@@ -24,7 +24,13 @@ module.exports = class Book
     }
 
 
-    // methode statique qui va tout récuperer
+    update(id)
+    {
+        return db.execute("UPDATE books SET title = ?, imageUrl = ?, price = ?, description = ? WHERE books.id = ?", 
+        [this.title, this.imageUrl, this.price, this.description, id])
+    }
+
+
     // for the get all
     static fetchAll()
     {
@@ -41,5 +47,6 @@ module.exports = class Book
     // for the delete by id
     static deleteBookById(id)
     {
+        return db.execute('DELETE FROM books WHERE books.id = ?', [id])
     }
 }
