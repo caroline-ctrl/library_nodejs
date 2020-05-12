@@ -1,0 +1,36 @@
+<%- include('../includes/header.ejs') %>
+<%- include('../includes/navigation.ejs') %>
+
+<main>
+
+    <form class="book-form" action="/admin/<%= editing ? 'edit-book' : 'books' %>" method="POST">
+        <div class="form-group">
+          <label for="title">Titre du livre</label>
+          <input type="text" class="form-control" name="title" id="title" value="<%= editing ? book.title : '' %>">
+        </div>
+        <div class="form-group">
+            <label for="imageUrl">Url de l'image</label>
+            <input type="text" class="form-control" name="imageUrl" id="imageUrl" value="<%= editing ? book.imageUrl: '' %>">
+          </div>
+
+          <div class="form-group">
+            <label for="price">Prix</label>
+            <input type="number" class="form-control" name="price" id="price" step="0.01" value="<%= editing ? book.price : '' %>"> <!--step permet de prendre en compte les decimales-->
+          </div>
+  
+  
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea class="form-control" id="description" name="description" rows="3"><%= editing ? book.description : '' %></textarea>
+        </div>
+
+        <% if (editing) {%>
+            <input type="hidden" value="<%= book.id %>" name="bookId">
+        <% } %>
+
+        <button type="submit" class="btn"><%= editing ? 'Mettre à jour le livre' : 'Ajouter un livre' %></button>
+      </form>
+</main>
+
+
+<%- include('../includes/footer.ejs') %>

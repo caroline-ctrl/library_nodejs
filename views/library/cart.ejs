@@ -1,0 +1,26 @@
+<%- include('../includes/header.ejs') %>
+<%- include('../includes/navigation.ejs') %>
+<main>
+    <% if(books.length > 0) { %>
+        <h1>Panier</h1>
+        <ul>
+            <% books.forEach(book => { %>
+                <li style="list-style-type: none;">
+                    <img src="<%= book.bookData.imageUrl %>" alt="<%= book.bookData.title %>" height="50px" width="50px">
+                    <p><%= book.bookData.title %></p> | Quantité: <%= book.qty %> | Prix: <%= book.bookData.price %>
+                    <form action="/cart-delete-item" method="POST">
+                        <input type="hidden" value="<%= book.bookData.id %>" name="bookId">
+                        <button class="btn" type="submit">Supprimer</button>
+                    </form>
+                </li>
+            <% }) %>
+        </ul>
+        <hr>
+        <h3>Prix total : <%= cart.totalPrice %> €</h3>
+
+    <% } else {%>
+        <h1>Pas de produit dans le panier</h1>
+    <% } %>
+</main>
+
+<%- include('../includes/footer.ejs') %>

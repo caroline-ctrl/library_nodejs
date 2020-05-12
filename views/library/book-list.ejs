@@ -1,0 +1,28 @@
+<%- include('../includes/header.ejs') %>
+<%- include('../includes/navigation.ejs') %>
+
+<main>
+    <div class="row mt-3">
+        <% if(books.length > 0) { %>
+            <% for(let book of books) { %>
+                <div class="col-4">
+                    <div class="card" style="width: 18rem;">
+                        <img class="card-img-top" src="<%- book.imageUrl %>" alt="<%= book.title %>">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= book.title %></h5>
+                            <p class="card-text"><%= book.description %></p>
+                            <h5 class="card-text"><%= book.price %> €</h5>
+                            <div>
+                                <a href="/books/<%= book.id %>" class="btn">Voir le livre</a>
+                                <%- include('../includes/add-to-cart.ejs', {book: book}) %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+            <% } %>
+    </div>
+</main>
+
+
+<%- include('../includes/footer.ejs') %>

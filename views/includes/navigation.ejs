@@ -1,0 +1,29 @@
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link <%= path === '/' ? 'active' : '' %>" href="/">Librairie</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link <%= path === '/books' ? 'active' : '' %>" href="/books" class="active">Livre</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link <%= path === '/cart' ? 'active' : '' %>" href="/cart" class="active">Panier</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link <%= path === '/orders' ? 'active' : '' %>" href="/orders" class="active">Commande</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link <%= path === '/admin/books' ? 'active' : '' %>" href="/admin/books" class="active">Admin books</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link <%= path === '/admin/add-book' ? 'active' : '' %>" href="/admin/add-book" class="active">Ajouter un livre</a>
+                </li>
+
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<div class="container">
