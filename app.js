@@ -5,8 +5,8 @@ const http = require('http');
 // require('./routes') = car on a créé le module dans le fichier route.js et ./ pour localiser le module dans ce fichier
 // const routes = require('./routes');
 
-const path = require('path');
 const express = require('express');
+const path = require('path');
 const bodyParser = require('body-parser');
 const adminRoute = require('./routes/admin');
 const libraryRoute = require('./routes/library');
