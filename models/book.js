@@ -1,4 +1,4 @@
-
+const db = require('../helper/database');
 const Cart = require('./cart');
 
 
@@ -19,22 +19,22 @@ module.exports = class Book
     //methode qui permet de recupèrer ce qui a été fait dans la methode "getBookFromJson"
     save()
     {
+        return db.execute("INSERT INTO books (title, imageUrl, price, description) VALUES (?, ?, ?, ?)", 
+        [this.title, this.imageUrl, this.price, this.description])
     }
 
 
     // methode statique qui va tout récuperer
     // for the get all
-    static fetchAll(callback)
+    static fetchAll()
     {
+        return db.execute('SELECT * FROM books'); // le fait de retourner est considéré comme une promise
     }
 
     // for the get by id
-    static getBooksById(id, callback)
+    static getBooksById(id)
     {
-        getBookFromJson(books => {
-            const book = books.find(bk => bk.id === id);
-            callback(book);
-        })
+        return db.execute('SELECT * FROM books WHERE books.id = ?', [id]);
     }
 
 

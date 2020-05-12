@@ -2,40 +2,49 @@
 const Book = require('../models/book');
 const Cart = require('../models/cart');
 
+
+
+
 // affiche tous les livres en appelant la vue "library/book-list"
 exports.getAllBooks = (req, res, next) => {
-    // on tape sur la classe Book, puis fait appel a la fonction fetchAll du controller
-    Book.fetchAll(books => { // "books" est le callback (parametre de la fonction getBookFromJson du model)
-        res.render('library/book-list', {
-            pageTitle: 'Tous les livres',
-            path: '/',
-            books: books
-        });
-    });
+    Book.fetchAll()
+        .then(([books]) => {
+            res.render('library/book-list', {
+                pageTitle: 'Tous les livres',
+                path: '/',
+                books: books
+            });
+        })
+        .catch(err => console.log(err))
 };
 
 
 exports.getBookById = (req, res, next) => {
     const bookId = req.params.bookId;
-    Book.getBooksById(bookId, book => {
-        res.render('library/book-detail', {
-            book: book,
-            pageTitle: book.title,
-            path: '/books'
+    Book.getBooksById(bookId)
+        .then(([book]) => {
+            res.render('library/book-detail', {
+                book: book[0],
+                pageTitle: book.title,
+                path: '/books'
+            })    
         })
-    });
+        .catch(err => console.log(err))
 }
 
 
 // affiche tous les livres en appelant la vue "library/index"
+// utilise la bdd
 exports.getIndex = (req, res) => {
-    Book.fetchAll(books => { // "books" est le callback (parametre de la fonction getBookFromJson du model)
-        res.render('library/index', {
-            pageTitle: 'Librarie',
-            path: '',
-            books: books
-        });
-    });
+    Book.fetchAll()
+        .then(([books]) => {
+            res.render('library/index', {
+                pageTitle: 'Librarie',
+                path: '/',
+                books: books
+            });
+        })
+        .catch(err => console.log(err));
 };
 
 // 

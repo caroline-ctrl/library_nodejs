@@ -18,8 +18,11 @@ exports.postBook = (req, res, next) => {
     const description = req.body.description;
     const price = req.body.price;
     const book = new Book(null, title, imageUrl, description, price); // creation d'une instance de Book et le parametre demandé est un titre
-    book.save(); // "book" est la variable declaré a la ligne du dessus. On fait appel a la methode qui se situe dans le controller => elle va pusher dans le tableau
-    res.redirect('/');
+    book.save() // "book" est la variable declaré a la ligne du dessus. On fait appel a la methode qui se situe dans le controller => elle va pusher dans le tableau
+        .then(() => {
+            res.redirect('/');
+        })
+        .catch(err => console.log(err))
 };
 
 // affiche la liste de livres partie admin
