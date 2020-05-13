@@ -10,6 +10,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const adminRoute = require('./routes/admin');
 const libraryRoute = require('./routes/library');
+const sequelize = require('./helper/database');
 const errorController = require('./controllers/errors');
 
 const app = express ();
@@ -33,13 +34,3 @@ app.use(errorController.get404)
 
 // port 3000
 app.listen(3000);
-
-// methode qui permet de créer le serveur = transforme l'ordi en seveur http
-// la methode http.createServer() crée un objet http serveur
-// const server = http.createServer(routes);
-// const server = http.createServer(app);
-
-
-// sur le port 3000
-// server.listen(3000);
-
