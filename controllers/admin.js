@@ -17,25 +17,28 @@ exports.postBook = (req, res, next) => {
     const imageUrl = req.body.imageUrl;
     const description = req.body.description;
     const price = req.body.price;
-    const book = new Book(null, title, imageUrl, description, price); // creation d'une instance de Book et le parametre demandé est un titre
-    book.save() // "book" est la variable declaré a la ligne du dessus. On fait appel a la methode qui se situe dans le controller => elle va pusher dans le tableau
-        .then(() => {
-            res.redirect('/');
-        })
-        .catch(err => console.log(err))
+
+    req.user.createBook({
+        title: title,
+        imageUrl: imageUrl,
+        price: price,
+        description: description
+    }).then(result => {
+        console.log('Livre créer')
+        res.redirect('admin/books')
+    }).catch(err => console.log(err))
 };
+
 
 // affiche la liste de livres partie admin
 exports.getBooks = (req, res) => {
-    Book.fetchAll()
-        .then(([books]) => {
-            res.render('admin/books', {
-                pageTitle: 'Admin liste des lives',
-                path: '/',
-                books: books
-            });    
+    req.user.getBooks().then(books => {
+        res.render('admin/books', {
+            pageTitle: 'Admin liste des lives',
+            path: '/',
+            books: books
         })
-        .catch(err => console.log(err))
+    }).catch(err => console.log(err))
 }
 
 
@@ -46,16 +49,17 @@ exports.getEditBook = (req, res, next) => {
         return res.redirect('/');
     }
     const bookId = req.params.bookId;
-    Book.getBooksById(bookId)
-        .then(([book]) => {
-            res.render('admin/edit-book', {
-                pageTitle: 'Mettre a jour un livre',
-                path: '/admin/edit-book',
-                editing: editMode,
-                book: book[0]
-            })    
-        })
-        .catch(err => console.log(err));
+    req.user.getBooks({where: {id:bookId}}).then(book => {
+        if(!book) {
+            console.log(book)
+        }
+        res.render('admin/edit-book', {
+            pageTitle: 'Mettre a jour un livre',
+            path: '/admin/edit-book',
+            editing: editMode,
+            book: book
+        })   
+    }).catch(err => console.log(err))
 }
 
 
@@ -66,21 +70,26 @@ exports.postEditBook = (req, res, next) => {
     const updatedPrice = req.body.price;
     const updatedImageUrl = req.body.imageUrl;
     const updatedDescription = req.body.description;
-    const updatedBook = new Book(bookId, updatedTitle, updatedImageUrl, updatedDescription, updatedPrice);
-    updatedBook.update(bookId)
-        .then(() => {
-            res.redirect('/admin/books');
-        })
-        .catch(err => console.log(err))
+    Book.findByPk(bookId).then(book => {
+        book.title =updatedTitle;
+        book.price =updatedPrice;
+        book.imageUrl =updatedImageUrl;
+        book.description =updatedDescription;
+        return book.save();
+    }).then(result => {
+        console.log('Livre mis à jour')
+        res.redirect('/admin/books')
+    }).catch(err => console.log(err))
 }
 
 
 // DELETE
 exports.deletBook = (req, res, next) => {
     const bookId = req.body.bookId;
-    Book.deleteBookById(bookId)
-        .then(([book]) => {
-            res.redirect('/admin/books');
-        })
-        .catch(err => console.log(err))
+    Book.findByPk(bookId).then(book => {
+        return book.destroy();
+    }).then(result => {
+        console.log('Livre supprimer')
+        res.redirect('/admin/books')
+    }).catch(err => console.log(err))
 }
