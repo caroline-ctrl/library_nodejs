@@ -59,6 +59,7 @@ exports.getEditBook = (req, res, next) => {
 }
 
 
+// UPDATE
 exports.postEditBook = (req, res, next) => {
     const bookId = req.body.bookId;
     const updatedTitle = req.body.title;
@@ -74,6 +75,7 @@ exports.postEditBook = (req, res, next) => {
 }
 
 
+// DELETE
 exports.deletBook = (req, res, next) => {
     const bookId = req.body.bookId;
     Book.deleteBookById(bookId)
