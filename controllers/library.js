@@ -1,14 +1,13 @@
 // on recupère le modele donc la classe Book c'est pour va que la variable a une majuscule
 const Book = require('../models/book');
-const Cart = require('../models/cart');
 
 
 
 
 // affiche tous les livres en appelant la vue "library/book-list"
 exports.getAllBooks = (req, res, next) => {
-    Book.fetchAll()
-        .then(([books]) => {
+    Book.findAll()
+        .then(books => {
             res.render('library/book-list', {
                 pageTitle: 'Tous les livres',
                 path: '/',
@@ -21,23 +20,21 @@ exports.getAllBooks = (req, res, next) => {
 
 exports.getBookById = (req, res, next) => {
     const bookId = req.params.bookId;
-    Book.getBooksById(bookId)
-        .then(([book]) => {
-            res.render('library/book-detail', {
-                book: book[0],
-                pageTitle: book.title,
-                path: '/books'
-            })    
-        })
-        .catch(err => console.log(err))
+    Book.findByPk(bookId).then(book => {
+        res.render('library/book-detail', {
+            book: book,
+            pageTitle: book.title,
+            path: '/books'
+        })      
+    }).catch(err => console.log(err))
 }
 
 
 // affiche tous les livres en appelant la vue "library/index"
 // utilise la bdd
 exports.getIndex = (req, res) => {
-    Book.fetchAll()
-        .then(([books]) => {
+    Book.findAll()
+        .then(books => {
             res.render('library/index', {
                 pageTitle: 'Librarie',
                 path: '/',
@@ -49,41 +46,56 @@ exports.getIndex = (req, res) => {
 
 // 
 exports.getCart = (req, res) => {
-    Cart.getCart(cart => {
-        Book.fetchAll(books => {
-            const cartBooks = [];
-            for(book of books) {
-                const cartBookData = cart.books.find(bk => bk.id === book.id);
-                if (cartBookData){
-                    cartBooks.push({bookData: book, qty: cartBookData.qty});
-                }
-            }
+    req.user.getCart().then(cart => {
+        return cart.getBooks().then(books => {
             res.render('library/cart', {
                 path: '/cart',
                 pageTitle: 'Votre panier',
-                books: cartBooks,
-                cart: cart
+                books: books
             })
         })
-    })
+    }).catch(err => console.log(err))
 };
 
 
 exports.postCart = (req, res, next) => {
     const bookId = req.body.bookId;
-    Book.getBooksById(bookId, book => {
-        Cart.addBook(bookId, book.price);
-    })
-    res.redirect('/cart');
+    let fetchedCart;
+    let newQuantity = 1;
+    req.user.getCart().then(cart => {
+        fetchedCart = cart;
+        return cart.getBooks({where: {id: bookId}})
+    }).then(books => {
+        let book;
+        if(books.length > 0){
+            book = books[0]
+        }
+        if (book){
+            const oldQuantity = book.cartItem.quantity
+            newQuantity = oldQuantity + 1
+            return book
+        }
+        return Book.findByPk(bookId)
+    }).then(book => {
+        return fetchedCart.addBook(book, {
+            through: {quantity: newQuantity}
+        })
+    }).then(() => {
+        res.redirect('/cart');
+    }).catch(err => console.log(err))
 }
 
 
 exports.postCartDeleteBook = (req, res, next) => {
     const bookId = req.body.bookId;
-    Book.getBooksById(bookId, book => {
-        Cart.deleteBook(bookId, book.price);
+    req.user.getCart().then(cart => {
+        return cart.getBooks({where: {id: bookId}})
+    }).then(books => {
+        const book = books[0]
+        return book.cartItem.destroy()
+    }).then(result => {
         res.redirect('/cart');
-    })
+    }).catch(err => console.log(err))
 }
 
 
@@ -95,10 +107,33 @@ exports.getCheckout = (req, res) => {
 };
 
 
+exports.postOrders = (req, res, next) => {
+    let fetchedCart;
+    req.user.getCart().then(cart => {
+        fetchedCart = cart;
+        return cart.getBooks()
+    }).then(books => {
+        return req.user.createOrder().then(order => {
+            return order.addBook(books.map(book => {
+                book.orderItem = {quantity: book.cartItem.quantity}
+                return book
+            }))
+        }).then(result => {
+            return fetchedCart.setBooks(null)
+        }).then(result => {
+            res.redirect('/orders')
+        }).catch(err => console.log(err))
+    }).catch(err => console.log(err))
+}
+
+
 exports.getOrders = (req, res) => {
-    res.render('library/orders', {
-        path: '/orders',
-        pageTitle: 'Paiement'
-    });
+    req.user.getOrders({include: ['books']}).then(orders => {
+        res.render('library/orders', {
+            path: '/orders',
+            pageTitle: 'Paiement',
+            orders: orders
+        });
+    })
 };
 
